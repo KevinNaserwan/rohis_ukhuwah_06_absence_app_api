@@ -17,6 +17,7 @@ class Absence extends Model
         'status',
     ];
 
+
     /**
      * Get the user that owns the absence.
      */

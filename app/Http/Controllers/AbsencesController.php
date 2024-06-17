@@ -6,7 +6,6 @@ use App\Models\Absence;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class AbsencesController extends Controller
 {
@@ -29,28 +28,10 @@ class AbsencesController extends Controller
         return response()->json(['absence' => $absence]);
     }
 
-    // Generate QR code for a user (Only for students)
-    public function generateQrCode(Request $request)
-    {
-        $user = $request->user();
-
-        if ($user->role !== 'siswa') {
-            return response()->json(['message' => 'Unauthorized'], 403);
-        }
-
-        $qrCode = QrCode::size(300)->generate($user->nis);
-        return response()->json(['qr_code' => base64_encode($qrCode)], 200);
-    }
-
-    // Scan QR code and record absence (Only for admin)
+    //
     public function scanQrCode(Request $request)
     {
-        $user = $request->user();
-
-        if ($user->role !== 'admin') {
-            return response()->json(['message' => 'Unauthorized'], 403);
-        }
-
+        // Validate the request data
         $validator = Validator::make($request->all(), [
             'qr_code' => 'required|string',
         ]);
@@ -59,13 +40,16 @@ class AbsencesController extends Controller
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        $nis = base64_decode($request->qr_code);
-        $student = User::where('nis', $nis)->first();
+        // Decode the QR code and find the student
+        $decodedQrCode = base64_decode($request->qr_code);
+
+        $student = User::where('nis', $decodedQrCode)->first();
 
         if (!$student) {
             return response()->json(['message' => 'Invalid QR code'], 400);
         }
 
+        // Record the absence
         $absence = Absence::create([
             'student_id' => $student->id,
             'date' => now()->toDateString(),

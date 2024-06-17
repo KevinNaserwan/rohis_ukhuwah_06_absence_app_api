@@ -12,6 +12,18 @@ class UserClass extends Model
     protected $table = 'classes';
 
     /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
+    protected $fillable = [
+        'name',
+    ];
+
+    public $timestamps = false;
+
+
+    /**
      * Get the users for the class.
      */
     public function users()

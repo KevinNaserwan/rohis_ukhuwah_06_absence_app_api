@@ -7,9 +7,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
+use App\Http\Controllers\Controller; // Ensure the base controller is imported if necessary
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class UserController extends Controller
 {
+
     // Register a new user
     public function register(Request $request)
     {
@@ -25,6 +28,9 @@ class UserController extends Controller
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
+        // Generate QR code
+        $encode = base64_encode($request->nis);
+        // Create user with QR code
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
@@ -32,6 +38,7 @@ class UserController extends Controller
             'nis' => $request->nis,
             'role' => 'siswa',  // Set default role to "siswa"
             'class_id' => $request->class_id,
+            'qr_code' => $encode,  // Store base64 encoded QR code
         ]);
 
         return response()->json(['message' => 'User registered successfully', 'user' => $user], 201);

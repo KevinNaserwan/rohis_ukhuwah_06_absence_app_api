@@ -23,6 +23,7 @@ class User extends Authenticatable
         'nis',
         'role',
         'class_id',
+        'qr_code'
     ];
 
     /**
