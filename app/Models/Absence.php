@@ -21,7 +21,7 @@ class Absence extends Model
     /**
      * Get the user that owns the absence.
      */
-    public function user()
+    public function student()
     {
         return $this->belongsTo(User::class, 'student_id');
     }
